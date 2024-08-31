@@ -1,5 +1,9 @@
 import sqlite3
-from datetime import datetime
+import os
+from datetime import datetime, timedelta
+
+# Ensure the db directory exists
+os.makedirs('db', exist_ok=True)
 
 DATABASE_FILE = 'db/players.db'
 
@@ -63,3 +67,17 @@ def update_total_time(username):
         ''', (total_time, username))
     conn.commit()
     conn.close()
+
+def get_recent_players(days=180):
+    conn = sqlite3.connect(DATABASE_FILE)
+    cursor = conn.cursor()
+    cutoff_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute('''
+        SELECT username, last_login, login_count, total_time
+        FROM players
+        WHERE last_login >= ?
+        ORDER BY total_time DESC
+    ''', (cutoff_date,))
+    players = cursor.fetchall()
+    conn.close()
+    return players

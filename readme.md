@@ -14,3 +14,8 @@
 
 Python Script, dass die console liest und per RCON reagiert
 
+### unclaim chunks
+
+/admin unclaim - Unclaims current chunk (The Future is now, Opens a GUI)
+/admin unclaim_all <player | @a> - Unclaims all chunks from all dimensions
+

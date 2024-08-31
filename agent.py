@@ -2,12 +2,17 @@ import re
 import time
 from mcrcon import MCRcon
 from config import RCON_HOST, RCON_PORT, RCON_PASSWORD, LOG_FILE
-from database import initialize_database, update_last_login, update_last_logout, update_total_time
+from database import initialize_database, update_last_login, update_last_logout, update_total_time, get_recent_players
 
 def send_rcon_command(command):
-    with MCRcon(RCON_HOST, RCON_PASSWORD, port=RCON_PORT) as mcr:
-        response = mcr.command(command)
-        print(response)
+    mcr = MCRcon(RCON_HOST, RCON_PASSWORD, port=RCON_PORT)
+    mcr.connect()
+    response = mcr.command(command)
+    print(response)
+    mcr.disconnect()    
+    #with MCRcon(RCON_HOST, RCON_PASSWORD, port=RCON_PORT, timeout=180) as mcr:
+    #    response = mcr.command(command)
+    #    print(response)
 
 def welcome_user(username):
     command = f"say Welcome {username} to the server!"
@@ -18,6 +23,15 @@ def respond_to_message(username, message):
     if "hello" in message.lower():
         command = f"say Hello {username}!"
         send_rcon_command(command)
+    elif message.strip() == "!zeit":
+        players = get_recent_players()
+        if players:
+            send_rcon_command("say Players logged in the last 180 days:")
+            for player in players:
+                response = f"{player[0]} - Last Login: {player[1]}, Logins: {player[2]}, Total Time: {player[3]} minutes"
+                send_rcon_command(f"say {response}")
+        else:
+            send_rcon_command("say No players have logged in the last 180 days.")
 
 def read_new_lines(log_file, last_position):
     with open(log_file, 'r') as file:
