@@ -4,3 +4,4 @@ test-server
 venv/
 config.py
 __pycache__/
+.vscode/settings.json
